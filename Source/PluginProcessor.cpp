@@ -1,4 +1,3 @@
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -14,7 +13,7 @@ bool JUCE_Minimal_VST3AudioProcessor::isBusesLayoutSupported (const BusesLayout&
 void JUCE_Minimal_VST3AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = (juce::uint32)samplesPerBlock;
+    spec.maximumBlockSize = (juce::uint32) samplesPerBlock;
     spec.numChannels = 2;
 
     osc.prepare (spec);
@@ -37,7 +36,7 @@ void JUCE_Minimal_VST3AudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 
     juce::dsp::AudioBlock<float> block (buffer);
     osc.process (juce::dsp::ProcessContextReplacing<float> (block));
-    gain.setGainLinear (apvts.getRawParameterValue("gain")->load());
+    gain.setGainLinear (apvts.getRawParameterValue ("gain")->load());
     gain.process (juce::dsp::ProcessContextReplacing<float> (block));
 }
 
@@ -61,10 +60,13 @@ juce::AudioProcessorEditor* JUCE_Minimal_VST3AudioProcessor::createEditor()
 juce::AudioProcessorValueTreeState::ParameterLayout JUCE_Minimal_VST3AudioProcessor::createLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    params.push_back (std::make_unique<juce::AudioParameterFloat>("gain", "Gain",
-                      juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 1.0f), 0.2f));
+    params.push_back (std::make_unique<juce::AudioParameterFloat>(
+        "gain", "Gain", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f, 1.0f), 0.2f));
     return { params.begin(), params.end() };
 }
 
-extern "C" __attribute__((visibility("default"))) JUCE_API juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter();
-juce::AudioProcessor* createPluginFilter() { return new JUCE_Minimal_VST3AudioProcessor(); }
+// NOTE: No extern "C" here — JUCE declares the signature already.
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+{
+    return new JUCE_Minimal_VST3AudioProcessor();
+}
